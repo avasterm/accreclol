@@ -26,7 +26,7 @@ namespace ACC_RECOVER
 
                     // GET PROXY BY LINK
                     WebClient WebClientForProxy = new WebClient();
-               string uriString = "http://35.184.197.58/white_" + proxyTYPE + ".txt";
+               string uriString = "http://35.192.62.137/white_" + proxyTYPE + ".txt";
                // string uriString = "http://80.78.251.153/?controller=api&hwid=322b3925ea10af62322007f797645453&type=" + proxyTYPE;
                     Stream webProxyListStream = WebClientForProxy.OpenRead(uriString);
                     sr_proxy = new StreamReader(webProxyListStream);

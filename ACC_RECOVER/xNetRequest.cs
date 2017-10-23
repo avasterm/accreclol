@@ -86,7 +86,7 @@ namespace ACC_RECOVER
                             {"__cfduid", __cfduid},
                             {"cf_clearance",cf_clearance},
                             {"PVPNET_LANG","en_US"},
-                            {"PVPNET_REGION","na"}
+                            {"PVPNET_REGION","euw"}
                         };
 
                     request.Cookies.IsLocked = true;
