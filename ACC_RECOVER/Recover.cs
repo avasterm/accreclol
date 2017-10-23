@@ -35,8 +35,8 @@ namespace ACC_RECOVER
 
         public static void DO()
         {
-            WebBrowser BROWSER = new WebBrowser();
-            BROWSER.BrowserOpen();
+           // WebBrowser BROWSER = new WebBrowser();
+           // BROWSER.BrowserOpen();
             pVar.counterACCS = 0;
             FORM_recover main = new FORM_recover();
              while (pVar.counterACCS <= pVar.countALL-1)
@@ -46,14 +46,14 @@ namespace ACC_RECOVER
 
                 main.GOODS.Text = "200";
                 pVar.currentLogin = Logins.nextLogin(pVar.counterACCS);
-                xNetRequest.sendReq(pVar.mainAction, pVar.currentLogin, pVar.__cfduid, pVar.cf_clearance);
+                xNetRequest.sendReq(pVar.mainAction, pVar.currentLogin);
                 Thread.Sleep(5000);
                 if (pVar.counterERRORS <= 1)
                 {
                     while (pVar.counterERRORS == 0)
                     {
                        // Thread.Sleep(10000);
-                        xNetRequest.sendReq(pVar.mainAction, pVar.currentLogin, pVar.__cfduid, pVar.cf_clearance);
+                        xNetRequest.sendReq(pVar.mainAction, pVar.currentLogin);
                         Thread.Sleep(5000);
                     }
                 }

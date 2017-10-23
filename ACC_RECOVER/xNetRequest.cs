@@ -4,6 +4,7 @@ using xNet;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Threading;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace ACC_RECOVER
         public static string paramReq { get; set; }
 
         [STAThread]
-        public static void sendReq(string action, string LoginEmail, string __cfduid, string cf_clearance)
+        public static void sendReq(string action, string LoginEmail)
         {
             FORM_recover main = new FORM_recover();
             if (action == "LOGINS")
@@ -63,8 +64,13 @@ namespace ACC_RECOVER
 
                         request.Proxy = proxyClient;
                     }
+                    if(pVar.cf_clearance.Length==0)
+                    {
 
-                   
+                        mProxy.currentProxy = mProxy.nextProxy();
+                        getCloudFlareCookies();
+                    }
+                    
 
                     request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36";
                     request.KeepAlive = true;
@@ -83,8 +89,8 @@ namespace ACC_RECOVER
 
                     request.Cookies = new CookieDictionary()
                       {
-                            {"__cfduid", __cfduid},
-                            {"cf_clearance",cf_clearance},
+                            {"__cfduid", pVar.__cfduid},
+                            {"cf_clearance", pVar.cf_clearance},
                             {"PVPNET_LANG","en_US"},
                             {"PVPNET_REGION","euw"}
                         };
@@ -100,9 +106,12 @@ namespace ACC_RECOVER
 
                     if (pVar.counterERRORS == 3)
                     {
-                        
-                        WebBrowser BROWSER = new WebBrowser();
-                        BROWSER.BrowserOpen();
+
+                        pVar.__cfduid = string.Empty;
+                        pVar.cf_clearance = string.Empty;
+                        mProxy.currentProxy = mProxy.nextProxy();
+                        // WebBrowser BROWSER = new WebBrowser();
+                        // BROWSER.BrowserOpen();
                     }
                     Console.WriteLine("RESULT: " + jsons.Success);
                     Console.WriteLine("OTVET: " + jsons.message);
@@ -114,9 +123,50 @@ namespace ACC_RECOVER
             pVar.counterERRORS++;
             if (pVar.counterERRORS == 3)
             {
+                pVar.__cfduid = string.Empty;
+                pVar.cf_clearance = string.Empty;
+                mProxy.currentProxy = mProxy.nextProxy();
+                // WebBrowser BROWSER = new WebBrowser();
+                // BROWSER.BrowserOpen();
+            }
+        }
 
-                WebBrowser BROWSER = new WebBrowser();
-                BROWSER.BrowserOpen();
+        public static void getCloudFlareCookies()
+        {
+            using (var request = new HttpRequest())
+            {
+                if (mProxy.proxyTYPE != "none")
+                {
+                    request.Proxy = proxyClient;
+                }
+                request.UserAgent = "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36";
+                request.KeepAlive = true;
+                Uri CFuri = new Uri("https://account.leagueoflegends.com/na/en/forgot-password");
+                request.Cookies = new CookieDictionary();
+                request.IgnoreProtocolErrors = true;
+                string response = request.Get(CFuri).ToString();
+                
+                pVar.__cfduid = Regex.Replace(request.Cookies.ToString(), @"__cfduid=", "");
+                CloudFlare.calculate(response);
+
+                Thread.Sleep(3000);
+
+                Uri CFuri2 = new Uri("https://account.leagueoflegends.com/cdn-cgi/l/chk_jschl?jschl_vc=" + CloudFlare.challenge + "&pass=" + CloudFlare.challenge_pass + "&jschl_answer=" + CloudFlare.solved + "");
+
+                request
+                        .AddHeader(HttpHeader.Referer, "https://account.leagueoflegends.com/na/en/forgot-password")
+                        .AddHeader(HttpHeader.Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+                        .AddHeader(HttpHeader.ContentEncoding, "gzip, deflate, br")
+                        .AddHeader(HttpHeader.AcceptLanguage, "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4");
+
+                var response2 = request.Get(CFuri2).ToString();
+                //  Console.WriteLine(response2);
+
+                pVar.__cfduid = Regex.Replace(request.Cookies.ToString(), @"__cfduid=(.*?)\; cf_clearance=(.*?)", "$1");
+                pVar.cf_clearance = Regex.Replace(request.Cookies.ToString(), @"__cfduid=(.*?)\; cf_clearance=(.*?)", "$2");
+                Console.WriteLine("COOK1:  " + pVar.__cfduid);
+                Console.WriteLine("COOK2:  " + pVar.cf_clearance);
+
             }
         }
     }

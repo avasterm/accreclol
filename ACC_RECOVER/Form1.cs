@@ -108,9 +108,8 @@ namespace ACC_RECOVER
         {
             chooseTypeOfList();
             chooseProxy();
-           // showSuccess();
             Recover.Run(Recover.DO);
-           // Recover.DO();
+           // xNetRequest.getCloudFlareCookies();
         }
     }
 }
